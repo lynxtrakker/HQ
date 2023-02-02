@@ -19,8 +19,6 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.*;
-import java.time.temporal.TemporalAccessor;
-import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,7 +27,7 @@ import java.util.Objects;
 public class eventListener implements EventListener {
     @Override
     public void onEvent(GenericEvent event) {
-        //
+
         JDA jda = event.getJDA();
 
         if (event instanceof ReadyEvent){
@@ -57,7 +55,7 @@ public class eventListener implements EventListener {
                 String messageContent = ((MessageReceivedEvent) event).getMessage().getContentDisplay().toLowerCase();
                 String channel = message.getChannel().getName();
                 String footer = String.format("[%s] #%s", guild.getName(), channel);
-                String avatar = message.getMember().getUser().getAvatarUrl();
+                String avatar = Objects.requireNonNull(message.getMember()).getUser().getAvatarUrl();
                 EmbedBuilder eb = new EmbedBuilder()
                         .setColor(Color.DARK_GRAY)
                         .setAuthor(member)
@@ -73,7 +71,7 @@ public class eventListener implements EventListener {
             }
         }
         //if (event instanceof UserUpdateOnlineStatusEvent) {
-        //    User user = ((UserUpdateOnlineStatusEvent) event).getUser();
+        //    User user = ((UserUpdateOnlineStatusE.vent) event).getUser();
         //    TextChannel botChannel = Objects.requireNonNull(jda.getGuildById(600013597858594856L)).getTextChannelById(600013599418744874L);
         //    String message = String.format("[%s] %s updated their online status from %s to %s", event.getJDA().getSelfUser().getName(), ((UserUpdateOnlineStatusEvent) event).getUser().getName(), ((UserUpdateOnlineStatusEvent) event).getOldOnlineStatus(), ((UserUpdateOnlineStatusEvent) event).getNewOnlineStatus());
         //    assert botChannel != null;
@@ -90,7 +88,7 @@ public class eventListener implements EventListener {
             commandData.add(Commands.slash("welcome", "Welcome someone to the server").addOptions(welcome1));
             commandData.add(Commands.slash("ping", "Get the ping of the bot"));
             OptionData user = new OptionData(OptionType.MENTIONABLE, "member", "Select a member", true);
-            OptionData invis = new OptionData(OptionType.BOOLEAN, "seen", "Choose if you want this message to be seen by others", false);
+            OptionData  invis = new OptionData(OptionType.BOOLEAN, "seen", "Choose if you want this message to be seen by others", false);
             commandData.add(Commands.slash("userinfo", "Get the info of a member").addOptions(user, invis));
             ((GuildReadyEvent) event).getGuild().updateCommands().addCommands(commandData).queue();
         }

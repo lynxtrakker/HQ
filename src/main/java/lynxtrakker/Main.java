@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import javax.security.auth.login.LoginException;
 
@@ -25,7 +26,8 @@ public class Main extends ListenerAdapter {
         //Sets options for the builder
         builder.setStatus(OnlineStatus.DO_NOT_DISTURB)
                 .setActivity(Activity.streaming("Moistcr1tikal", "https://www.twitch.tv/moistcr1tikal"))
-                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT);
+                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_PRESENCES)
+                .enableCache(CacheFlag.ONLINE_STATUS);
         shardManager = builder.build(); // We are building the builder into a variable called shardManager
 
         // Register main listener file right here
@@ -44,9 +46,6 @@ public class Main extends ListenerAdapter {
     public static void main(String[] args) {
         try {
             Main bot = new Main();
-
-
-
 
         } catch (Exception e){
             e.printStackTrace();

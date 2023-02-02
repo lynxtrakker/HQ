@@ -2,7 +2,6 @@ package lynxtrakker.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.ClientType;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -28,20 +27,33 @@ public class commandManager extends ListenerAdapter {
                 }
             }
             case "ping" -> {
-                long time = System.currentTimeMillis();
-                double ping = Objects.requireNonNull(event.getJDA().getShardManager()).getAverageGatewayPing();
-                EmbedBuilder embedBuilder = new EmbedBuilder();
-                embedBuilder.setDescription("Pong!")
-                        .setColor(Color.RED);
-                event.replyEmbeds(embedBuilder.build())
-                        .setEphemeral(false)
+                //long time = System.currentTimeMillis();
+                //double ping = Objects.requireNonNull(event.getJDA().getShardManager()).getAverageGatewayPing();
+                //EmbedBuilder embedBuilder = new EmbedBuilder();
+                //embedBuilder.setDescription("Pong!")
+                //        .setColor(Color.RED);
+                //event.replyEmbeds(embedBuilder.build())
+                //        .setEphemeral(false)
+                //        .flatMap(v -> {
+                //            EmbedBuilder eb2 = new EmbedBuilder()
+                //                    .setColor(Color.GREEN);
+                //            eb2.setDescription(String.format("Ping: %s ms", System.currentTimeMillis() - time));
+                //            event.getHook().editOriginalEmbeds(eb2.build()).queue();
+                //            return null;
+                //        }).queue();
+                long start = System.currentTimeMillis();
+                double ping = Objects.requireNonNull(event.getJDA().getShardManager().getAverageGatewayPing());
+                EmbedBuilder eb = new EmbedBuilder()
+                        .setColor(Color.RED)
+                        .setDescription("Pong!");
+                event.replyEmbeds(eb.build()).setEphemeral(false)
                         .flatMap(v -> {
-                            EmbedBuilder eb2 = new EmbedBuilder()
+                            String description = String.format("Ping: %s ms", ping);
+                            eb.setDescription(description)
                                     .setColor(Color.GREEN);
-                            eb2.setDescription(String.format("Ping: %s ms", System.currentTimeMillis() - time));
-                            event.getHook().editOriginalEmbeds(eb2.build()).queue();
-                            return null;
+                            return v.editOriginalEmbeds(eb.build());
                         }).queue();
+
             }
             case "userinfo" -> {
                 Member member = event.getOption("member", OptionMapping::getAsMember); //Gets the member from the first option in the command
