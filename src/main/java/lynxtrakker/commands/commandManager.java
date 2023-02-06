@@ -1,5 +1,6 @@
 package lynxtrakker.commands;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Member;
@@ -13,6 +14,9 @@ import java.awt.*;
 import java.util.Objects;
 
 public class commandManager extends ListenerAdapter {
+    Dotenv dotenv = Dotenv.configure().ignoreIfMalformed().ignoreIfMissing().load();
+    Long ownerid = Long.valueOf(dotenv.get("OWNERID"));
+
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
@@ -42,7 +46,7 @@ public class commandManager extends ListenerAdapter {
                 //            return null;
                 //        }).queue();
                 long start = System.currentTimeMillis();
-                double ping = Objects.requireNonNull(event.getJDA().getShardManager().getAverageGatewayPing());
+                double ping = Objects.requireNonNull(event.getJDA().getShardManager()).getAverageGatewayPing();
                 EmbedBuilder eb = new EmbedBuilder()
                         .setColor(Color.RED)
                         .setDescription("Pong!");
@@ -60,14 +64,13 @@ public class commandManager extends ListenerAdapter {
                 Boolean bool = event.getOption("seen", OptionMapping::getAsBoolean); //Gets the boolean from the second option in the command
                 if (member != null) { //If member is not null, continue with the message
                     User user = member.getUser(); //Gets user from the member info
-                    String discordJoin = String.valueOf(user.getTimeCreated()); //Gets the time of which they created their discord account
                     String avatar = user.getAvatarUrl(); //Gets the avatar url for the thumbnail
                     OnlineStatus status = member.getOnlineStatus(); //Gets the status for the member
                     EmbedBuilder eb = new EmbedBuilder()
                             .setColor(Color.DARK_GRAY)
                             .setAuthor(user.getName(), avatar)
                             .setDescription("in")
-                            .setFooter(discordJoin)
+                            .setFooter(joinManip(member))
                             .addField("Status: ", String.valueOf(member.getOnlineStatus()), true)
                             .setThumbnail(avatar);
                     event.replyEmbeds(eb.build()).setEphemeral(Objects.requireNonNullElse(bool, false)).queue();
@@ -80,7 +83,22 @@ public class commandManager extends ListenerAdapter {
                     System.out.println("fail");
                 }
             }
+            case "shutdown" -> {
+                if (event.getMember().getIdLong() == ownerid) {
+                    event.reply("hi").queue();
+                }
+
+            }
         }
     }
+    public static String joinManip(Member member){
+        User user = member.getUser(); //Gets the user data from member
+        String creationDate = String.valueOf(user.getTimeCreated()); //Gets the date that they created their discord account
+        String[] timeCreated = creationDate.split("T"); //Splits the date from the time as we do not need the time
+        String[] date = timeCreated[0].split("-"); //Takes the original yyyy-mm-dd and turns it into ->
+        return date[1] + "-" + date[2] + "-" + date[0]; // mm-dd-yyyy
+
+    }
+    
 
 }
