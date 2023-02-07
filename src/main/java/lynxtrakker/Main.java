@@ -2,6 +2,7 @@ package lynxtrakker;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import lynxtrakker.events.eventListener;
+import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
@@ -31,6 +32,7 @@ public class Main extends ListenerAdapter {
         shardManager.addEventListener(new eventListener()); //Adds the main event listening file to the bot
 
 
+
     }
 
     public Dotenv getConfig() {
@@ -44,6 +46,8 @@ public class Main extends ListenerAdapter {
     public static void main(String[] args) {
         try {
             Main bot = new Main();
+
+
 
 
 

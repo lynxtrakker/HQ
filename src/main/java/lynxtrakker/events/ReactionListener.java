@@ -10,27 +10,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.Date;
+import java.util.Objects;
 
 public class ReactionListener extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event){
-        // User user = event.getUser();
-        //String emoji = event.getReaction().getEmoji().getAsReactionCode();
-        //String channelMention = event.getChannel().getAsMention();
-        //String jumpLink = event.getJumpUrl();
-        //assert user != null;
-        //String message = String.format("%s reacted to a [message](%s) with %s in the %s channel!", user.getAsTag(), jumpLink, emoji, channelMention);
-        //TextChannel log = Objects.requireNonNull(event.getJDA().getGuildById(600013597858594856L)).getTextChannelById(600013599418744874L);
-        //assert log != null;
-        //log.sendMessage(MessageCreateData.fromContent(message)).queue();
 
         User user = event.getUser();
         String emoji = event.getReaction().getEmoji().getAsReactionCode();
         GuildChannel channel = event.getGuildChannel();
         String link = event.getJumpUrl();
         assert user != null;
-        TextChannel log = event.getJDA().getGuildById(1068785921857691678L).getTextChannelById(1069348533192372304L);
+        TextChannel log = Objects.requireNonNull(event.getJDA().getGuildById(1068785921857691678L)).getTextChannelById(1069348533192372304L);
+        assert log != null;
         log.sendMessage(String.format("%s reacted to a [message](%s) with %s in the %s channel!", user.getAsMention(), link, emoji, channel.getAsMention())).queue();
 
         EmbedBuilder eb = new EmbedBuilder()

@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
+import java.util.function.IntFunction;
+
 public class userStatusListener extends ListenerAdapter {
 
     Dotenv dotenv = Dotenv.configure().ignoreIfMalformed().ignoreIfMissing().load();

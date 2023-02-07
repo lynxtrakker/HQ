@@ -4,10 +4,18 @@ import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -31,33 +39,19 @@ public class commandManager extends ListenerAdapter {
                 }
             }
             case "ping" -> {
-                //long time = System.currentTimeMillis();
-                //double ping = Objects.requireNonNull(event.getJDA().getShardManager()).getAverageGatewayPing();
-                //EmbedBuilder embedBuilder = new EmbedBuilder();
-                //embedBuilder.setDescription("Pong!")
-                //        .setColor(Color.RED);
-                //event.replyEmbeds(embedBuilder.build())
-                //        .setEphemeral(false)
-                //        .flatMap(v -> {
-                //            EmbedBuilder eb2 = new EmbedBuilder()
-                //                    .setColor(Color.GREEN);
-                //            eb2.setDescription(String.format("Ping: %s ms", System.currentTimeMillis() - time));
-                //            event.getHook().editOriginalEmbeds(eb2.build()).queue();
-                //            return null;
-                //        }).queue();
-                long start = System.currentTimeMillis();
+                //long start = System.currentTimeMillis();
                 double ping = Objects.requireNonNull(event.getJDA().getShardManager()).getAverageGatewayPing();
                 EmbedBuilder eb = new EmbedBuilder()
                         .setColor(Color.RED)
                         .setDescription("Pong!");
-                event.replyEmbeds(eb.build()).setEphemeral(false)
+
+                event.deferReply().addEmbeds(eb.build()).setEphemeral(false)
                         .flatMap(v -> {
                             String description = String.format("Ping: %s ms", ping);
                             eb.setDescription(description)
                                     .setColor(Color.GREEN);
                             return v.editOriginalEmbeds(eb.build());
                         }).queue();
-
             }
             case "userinfo" -> {
                 Member member = event.getOption("member", OptionMapping::getAsMember); //Gets the member from the first option in the command
@@ -84,13 +78,95 @@ public class commandManager extends ListenerAdapter {
                 }
             }
             case "shutdown" -> {
-                if (event.getMember().getIdLong() == ownerid) {
-                    event.reply("hi").queue();
+                if (Objects.requireNonNull(event.getMember()).getIdLong() == ownerid) {
+                    String avatar = event.getJDA().getSelfUser().getAvatarUrl();
+                    EmbedBuilder eb = new EmbedBuilder()
+                            .setAuthor("HQ", null, avatar);
+
+                    event.reply("Are you sure you want to shut down this bot?")
+                            .addActionRow(
+                                    Button.success("Yes", "Yes"),
+                                    Button.danger("No", "No")
+
+                            ).queue();
+
+                    //System.exit(130);
+
                 }
+
+            }
+            case "nick" -> {
+
+            }
+        }
+
+    }
+
+    @Override
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+
+        if (event.getComponentId().equals("Yes")){
+            Button yes = event.getButton();
+
+            if (event.getInteraction().getUser().getIdLong() == ownerid){
+
+            } else {
+                Button bu1 = yes.asDisabled();
+                event.editButton(bu1).queue();
+            }
+
+            System.out.println("test");
+            Button bu1 = yes.asDisabled();
+            event.editButton(bu1).queue();
+
+        }
+    }
+
+    @Override
+    public void onMessageContextInteraction(MessageContextInteractionEvent event) {
+        ShardManager manager = event.getJDA().getShardManager();
+        String msg = event.getName();
+
+        switch (msg.toLowerCase()){
+            case "$nick" -> {
+
+            }
+        }
+
+
+    }
+
+
+    @Override
+    public void onMessageReceived(MessageReceivedEvent event) {
+        ShardManager manager = event.getJDA().getShardManager();
+        Message message = event.getMessage();
+        String msgContent = message.getContentDisplay();
+        String[] args = msgContent.split(" ");
+        String cmd = args[0].toLowerCase();
+        ChannelType cType = message.getChannelType();
+        //System.out.println("te");
+
+        if (cType == ChannelType.TEXT){
+
+        } else if (cType == ChannelType.PRIVATE) {
+
+        }
+
+        switch (cmd){
+            case "$nick" -> {
+                message.reply("nickname").queue();
+            }
+            case "$say" -> {
+
+            }
+            case "$help" -> {
+                User user = message.getAuthor();
 
             }
         }
     }
+
     public static String joinManip(Member member){
         User user = member.getUser(); //Gets the user data from member
         String creationDate = String.valueOf(user.getTimeCreated()); //Gets the date that they created their discord account
@@ -99,6 +175,4 @@ public class commandManager extends ListenerAdapter {
         return date[1] + "-" + date[2] + "-" + date[0]; // mm-dd-yyyy
 
     }
-    
-
 }
