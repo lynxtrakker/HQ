@@ -24,7 +24,7 @@ public class ReactionListener extends ListenerAdapter {
         assert user != null;
         TextChannel log = Objects.requireNonNull(event.getJDA().getGuildById(1068785921857691678L)).getTextChannelById(1069348533192372304L);
         assert log != null;
-        log.sendMessage(String.format("%s reacted to a [message](%s) with %s in the %s channel!", user.getAsMention(), link, emoji, channel.getAsMention())).queue();
+        //log.sendMessage(String.format("%s reacted to a [message](%s) with %s in the %s channel!", user.getAsMention(), link, emoji, channel.getAsMention())).queue();
 
         EmbedBuilder eb = new EmbedBuilder()
                 .setColor(Color.BLUE)

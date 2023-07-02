@@ -3,11 +3,11 @@ package lynxtrakker.commands;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class commandManager extends ListenerAdapter {
     Dotenv dotenv = Dotenv.configure().ignoreIfMalformed().ignoreIfMissing().load();
@@ -28,12 +29,12 @@ public class commandManager extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-
+        Member member = event.getMember();
         switch (event.getName().toLowerCase()) {
             case "welcome" -> {
-                Member member = event.getOption("member", OptionMapping::getAsMember);
-                if (member != null) {
-                    event.replyFormat("Welcome to the server %s!", member.getAsMention()).setEphemeral(true).queue();
+                Member mem = event.getOption("member", OptionMapping::getAsMember);
+                if (mem != null) {
+                    event.replyFormat("Welcome to the server %s!", mem.getAsMention()).setEphemeral(true).queue();
                 } else {
                     event.reply("Welcome to the server!!").queue();
                 }
@@ -53,19 +54,19 @@ public class commandManager extends ListenerAdapter {
                             return v.editOriginalEmbeds(eb.build());
                         }).queue();
             }
-            case "userinfo" -> {
-                Member member = event.getOption("member", OptionMapping::getAsMember); //Gets the member from the first option in the command
-                Boolean bool = event.getOption("seen", OptionMapping::getAsBoolean); //Gets the boolean from the second option in the command
-                if (member != null) { //If member is not null, continue with the message
-                    User user = member.getUser(); //Gets user from the member info
+            case "user" -> {
+                Member mem = event.getOption("member", OptionMapping::getAsMember); //Gets the member from the first option in the command
+                Boolean bool = event.getOption("visible", OptionMapping::getAsBoolean); //Gets the boolean from the second option in the command
+                if (mem != null) { //If member is not null, continue with the message
+                    User user = mem.getUser(); //Gets user from the member info
                     String avatar = user.getAvatarUrl(); //Gets the avatar url for the thumbnail
-                    OnlineStatus status = member.getOnlineStatus(); //Gets the status for the member
+                    OnlineStatus status = mem.getOnlineStatus(); //Gets the status for the member
                     EmbedBuilder eb = new EmbedBuilder()
                             .setColor(Color.DARK_GRAY)
                             .setAuthor(user.getName(), avatar)
-                            .setDescription("in")
-                            .setFooter(joinManip(member))
-                            .addField("Status: ", String.valueOf(member.getOnlineStatus()), true)
+                            //.setDescription("in")
+                            .setFooter(joinManip(mem))
+                            .addField("Status: ", String.valueOf(mem.getOnlineStatus()), true)
                             .setThumbnail(avatar);
                     event.replyEmbeds(eb.build()).setEphemeral(Objects.requireNonNullElse(bool, false)).queue();
 
@@ -96,7 +97,9 @@ public class commandManager extends ListenerAdapter {
 
             }
             case "nick" -> {
+                if (event.getMember().hasPermission(Permission.NICKNAME_CHANGE)){
 
+                }
             }
         }
 
@@ -126,9 +129,16 @@ public class commandManager extends ListenerAdapter {
     public void onMessageContextInteraction(MessageContextInteractionEvent event) {
         ShardManager manager = event.getJDA().getShardManager();
         String msg = event.getName();
+        String name = event.getMember().getUser().getName();
+        Member member = event.getMember();
+
+
+
 
         switch (msg.toLowerCase()){
             case "$nick" -> {
+                String old = event.getMember().getNickname();
+
 
             }
         }
@@ -142,26 +152,45 @@ public class commandManager extends ListenerAdapter {
         ShardManager manager = event.getJDA().getShardManager();
         Message message = event.getMessage();
         String msgContent = message.getContentDisplay();
-        String[] args = msgContent.split(" ");
+        User user = event.getAuthor();
+        String[] args = msgContent.split("\\s+");
         String cmd = args[0].toLowerCase();
         ChannelType cType = message.getChannelType();
+        String argsTo; //The args put back into a string after removing the command
+
         //System.out.println("te");
+        if (!(message.getAuthor().isBot())){
+            if (cType == ChannelType.TEXT){
+                Member member = event.getMember();
 
-        if (cType == ChannelType.TEXT){
+                switch (cmd) {
 
-        } else if (cType == ChannelType.PRIVATE) {
+                    case "$nick" -> {
+                        assert member != null;
+                        if (member.hasPermission(Permission.NICKNAME_CHANGE)){
 
+
+                        }
+                    }
+                }
+
+            } else if (cType == ChannelType.PRIVATE) {
+
+            }
         }
 
+
         switch (cmd){
+
             case "$nick" -> {
+
                 message.reply("nickname").queue();
             }
             case "$say" -> {
 
             }
             case "$help" -> {
-                User user = message.getAuthor();
+
 
             }
         }
@@ -175,4 +204,11 @@ public class commandManager extends ListenerAdapter {
         return date[1] + "-" + date[2] + "-" + date[0]; // mm-dd-yyyy
 
     }
+    public String randomize(String url){
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        return url + "&" + random.nextInt() + "=" + random.nextInt();
+
+    }
+
+
 }
