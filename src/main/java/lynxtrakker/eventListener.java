@@ -1,9 +1,10 @@
-package lynxtrakker.events;
+package lynxtrakker;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import lynxtrakker.Main;
-import lynxtrakker.commands.commandManager;
+
 import lynxtrakker.commands.commManager;
+import lynxtrakker.events.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
@@ -20,14 +21,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
-import javax.swing.text.html.Option;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,9 +40,6 @@ public class eventListener implements EventListener {
 
 
     Dotenv dotenv = Dotenv.configure().ignoreIfMissing().ignoreIfMalformed().load();
-    //Long ownerid = Long.valueOf(dotenv.get("OWNERID"));
-    //Long logID = Long.valueOf(dotenv.get("LOGCHANNEL"));
-    //Long logServerID = Long.valueOf(dotenv.get("LYNXMAIN"));
 
     public static HashMap<String, Long> servers = new HashMap<String, Long>();
 
@@ -82,12 +73,6 @@ public class eventListener implements EventListener {
             System.out.printf("[%s] Now up and running. Took %s ms to load and ping is %s ms\n%s\n", event.getJDA().getSelfUser().getName(), end, event.getJDA().getGatewayPing(), event.getJDA().getGuilds());
             TextChannel textChannel = jda.getTextChannelById(753248587420401757L);
             manager.setActivity(Activity.watching(String.format("%s servers", guildAmount)));
-            try {
-                dataCall();
-                userPut(jda);
-            } catch (IOException | ParseException e) {
-                throw new RuntimeException(e);
-            }
 
         }
 
@@ -160,36 +145,12 @@ public class eventListener implements EventListener {
 
 
             // Command: /vcmove <member> <channel>
-            // Reqired Permission: Manage Members. Will be used to move members to different voice chats.
+            // Reqired Permission: Manage Members
+            // Purpose: Will be used to move members to different voice chats
 
             ((GuildReadyEvent) event).getGuild().updateCommands().addCommands(commandData).queue();
         }
     }
 
-    public void dataCall() throws IOException, ParseException {
-        Object o = new JSONParser().parse(new FileReader("src/main/java/lynxtrakker/database.json"));
-        JSONObject j = (JSONObject) o;
-        String name = (String) j.get("name");
-        System.out.println(name);
 
-    }
-    public void dataPut(){
-
-    }
-    public void userPut(JDA jda){
-        Guild[] guilds = jda.getGuilds().toArray(new Guild[0]);
-        JSONObject j = new JSONObject();
-        JSONArray jA = new JSONArray();
-        for (Guild guild : guilds){
-            Member[] members = guild.getMembers().toArray(new Member[0]);
-
-            for (Member member : members) {
-                j.putIfAbsent(member.getUser().getId(), member.getEffectiveName());
-                j.put(member.getUser().getId(), member.getEffectiveName());
-            }
-
-        }
-
-
-    }
 }

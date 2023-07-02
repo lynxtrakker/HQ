@@ -1,7 +1,6 @@
 package lynxtrakker;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import lynxtrakker.events.eventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
