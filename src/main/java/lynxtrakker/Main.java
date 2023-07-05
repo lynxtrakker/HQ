@@ -11,7 +11,6 @@ import javax.security.auth.login.LoginException;
 
 public class Main extends ListenerAdapter {
     public static long start = System.currentTimeMillis(); // Creates the start time that we are going to be used to test how long the bot takes to start up
-
     private final Dotenv config;
     private final ShardManager shardManager; // Creating a private variable called shardManager and also making it final so it cannot be changed
     public Main() throws LoginException {
@@ -44,10 +43,6 @@ public class Main extends ListenerAdapter {
     public static void main(String[] args) {
         try {
             Main bot = new Main();
-
-
-
-
 
         } catch (Exception e){
             e.printStackTrace();

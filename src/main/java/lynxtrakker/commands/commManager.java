@@ -36,7 +36,7 @@ public class commManager extends ListenerAdapter {
             case "welcome" -> { //Welcome Command
                 Member mem = event.getOption("member", OptionMapping::getAsMember); //Gets the member name from the command
                 if (mem != null) { //If the member's name is null:
-                    event.replyFormat("Welcome to the Guild %s!", mem.getAsMention()).setEphemeral(true).queue(); //Reply
+                    event.replyFormat("Welcome to %s, %s!", mem.getGuild().getName(), mem.getAsMention()).setEphemeral(true).queue(); //Reply
 
                 } else {
                     event.reply("Welcome to the server!").queue();

@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
@@ -22,6 +21,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,11 +48,9 @@ public class eventListener implements EventListener {
         ShardManager manager = event.getJDA().getShardManager();
         JDA jda = event.getJDA();
         assert manager != null;
-        if (event instanceof ReadyEvent){
-
+        if (event instanceof ReadyEvent) {
 
             List<Guild> guilds = event.getJDA().getGuilds();
-
             //List<Guild> guilds = .getJDA().getGuilds();
             for (Guild guild : guilds) {
                 servers.put(guild.getName(), guild.getIdLong());
@@ -70,23 +68,39 @@ public class eventListener implements EventListener {
             jda.addEventListener(new database());
             jda.addEventListener(new buttonListener());
             long end = System.currentTimeMillis() - Main.start;
-            System.out.printf("[%s] Now up and running. Took %s ms to load and ping is %s ms\n%s\n", event.getJDA().getSelfUser().getName(), end, event.getJDA().getGatewayPing(), event.getJDA().getGuilds());
+            System.out.printf("[%s] Now up and running. Took %s ms to load and ping is %s ms\n", event.getJDA().getSelfUser().getName(), end, event.getJDA().getGatewayPing());
             TextChannel textChannel = jda.getTextChannelById(753248587420401757L);
             manager.setActivity(Activity.watching(String.format("%s servers", guildAmount)));
 
         }
 
-        if (event instanceof GuildReadyEvent){
+        if (event instanceof GuildReadyEvent) {
+            long guildStart = System.currentTimeMillis();
             List<CommandData> commandData = new ArrayList<>();
-
-            // Command: /welcome <member>(optional)
-            OptionData welMem = new OptionData(OptionType.MENTIONABLE, "member", "Mention the new member so they know you said welcome!", false);
-            commandData.add(Commands.slash("welcome", "Welcome someone to the server")
-                    .addOptions(welMem)
+            // Command: /help <page>
+            // Permission: No Permission Needed
+            // Purpose: Get a list of commands and other stuff.
+            commandData.add(Commands.slash("help", "Get a list of commands and other stuff")
+                    .addOptions(new OptionData(OptionType.INTEGER, "page", "Which page number would you like to go to?", false))
+                    .setGuildOnly(false)
             );
 
+            // Command: /helpc <command>
+            // Permission: No Permission Needed
+            // Purpose: Get help for a certain command.
+
+
+            // Command: /welcome <member>(optional)
+            // Permission: No permission needed
+            // Purpose: Welcome a member to the server!!!
+            commandData.add(Commands.slash("welcome", "Welcome someone to the server")
+                    .addOptions(new OptionData(OptionType.MENTIONABLE, "member", "Mention the new member so they can feel welcome!", false))
+                    .setGuildOnly(true)
+            );
 
             // Command: /ping
+            // Permission: No permission needed
+            // Purpose: Get the ping of the server and the bot.
             commandData.add(Commands.slash("ping", "Get the ping of the server"));
 
             // Command: /user <member> <visible>(optional)
@@ -101,7 +115,7 @@ public class eventListener implements EventListener {
                     .setDefaultPermissions(DefaultMemberPermissions.ENABLED)
             );
 
-            // Command: /nick <new> <member>(permission: Manage Nicknames)
+            // Command: /nick <new> <member>
             // Permission: NICKNAME_CHANGE
             // Purpose: Used to change the nickname of members.
             OptionData nick = new OptionData(OptionType.STRING, "nickname", "Select the nickname that you want", true);
@@ -129,7 +143,7 @@ public class eventListener implements EventListener {
                     .setGuildOnly(true)
             );
 
-            // Command: /kick <member> <reason>
+            // Command: /kick <member> <reason>(optional)
             // Required Permission: KICK_MEMBERS
             // Purpose: Used to kick members from the server
             OptionData kickMem = new OptionData(OptionType.MENTIONABLE, "member", "Choose who you would like to kick", true);
@@ -139,18 +153,28 @@ public class eventListener implements EventListener {
                     .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.KICK_MEMBERS))
             );
 
-            // Command: /mute <member> <time>(optional)
+            // Command: /mute <member> <duration>(optional)
             // Required Permission: MANAGE_MEMBERS
             // Purpose: Will be used to mute members for a temporary amount of time or permanently. Applies to both chat and voice chat
-
+            OptionData muteMem = new OptionData(OptionType.MENTIONABLE, "member", "Who do you want to mute?", true);
+            OptionData muteDuration = new OptionData(OptionType.STRING, "duration", "How long do you want to mute the member for?", false);
+            commandData.add(Commands.slash("mute", "Mute a member for misbehaviour")
+                    .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MODERATE_MEMBERS))
+                    .setGuildOnly(true)
+            );
 
             // Command: /vcmove <member> <channel>
             // Reqired Permission: Manage Members
             // Purpose: Will be used to move members to different voice chats
 
+
             ((GuildReadyEvent) event).getGuild().updateCommands().addCommands(commandData).queue();
+
+            long guildEnd = System.currentTimeMillis() - guildStart;
+            String botName = event.getJDA().getSelfUser().getName();
+            String guildName = ((GuildReadyEvent) event).getGuild().getName();
+            System.out.printf("[%s] %s is now up and running! Commands and listeners are available and working! Took %sms to complete!%n", botName, guildName, guildEnd);
+
         }
     }
-
-
 }
